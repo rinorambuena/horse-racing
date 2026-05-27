@@ -1,0 +1,678 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Carrera de Caballos</title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 2rem;
+        font-family: system-ui, sans-serif;
+        background: #f5f4f0;
+        color: #1a1a18;
+        min-height: 100vh;
+      }
+      h2 {
+        font-size: 22px;
+        font-weight: 500;
+        margin: 0 0 1.25rem;
+      }
+      h3 {
+        font-size: 15px;
+        font-weight: 500;
+        margin: 0 0 0.75rem;
+        color: #444441;
+      }
+
+      .controls {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 1.25rem;
+      }
+      .controls label {
+        font-size: 13px;
+        color: #5f5e5a;
+      }
+
+      select,
+      input[type="range"] {
+        accent-color: #7f77dd;
+        font-size: 13px;
+      }
+      select {
+        padding: 5px 8px;
+        border-radius: 8px;
+        border: 0.5px solid #b4b2a9;
+        background: #fff;
+        cursor: pointer;
+      }
+      input[type="text"] {
+        padding: 5px 8px;
+        border-radius: 8px;
+        border: 0.5px solid #b4b2a9;
+        background: #fff;
+        font-size: 13px;
+        outline: none;
+        transition: border-color 0.15s;
+      }
+      input[type="text"]:focus {
+        border-color: #7f77dd;
+      }
+
+      button {
+        padding: 6px 18px;
+        border-radius: 8px;
+        border: 0.5px solid #b4b2a9;
+        background: #fff;
+        font-size: 13px;
+        font-weight: 500;
+        color: #1a1a18;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+      button:hover {
+        background: #f1efe8;
+      }
+      button.secondary {
+        color: #5f5e5a;
+        background: transparent;
+        border-color: #d3d1c7;
+      }
+      button.primary {
+        background: #534ab7;
+        color: #fff;
+        border-color: #534ab7;
+      }
+      button.primary:hover {
+        background: #3c3489;
+        border-color: #3c3489;
+      }
+
+      .flip-btn {
+        padding: 4px 10px;
+        border-radius: 8px;
+        border: 0.5px solid #b4b2a9;
+        background: #fff;
+        font-size: 16px;
+        cursor: pointer;
+        transition:
+          background 0.15s,
+          border-color 0.15s;
+        line-height: 1;
+        user-select: none;
+      }
+      .flip-btn:hover {
+        background: #f1efe8;
+      }
+      .flip-btn.active {
+        background: #eeedfe;
+        border-color: #7f77dd;
+      }
+
+      .config-panel {
+        background: #fff;
+        border-radius: 12px;
+        border: 0.5px solid #d3d1c7;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.25rem;
+      }
+      .config-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+      }
+      .config-row:last-child {
+        margin-bottom: 0;
+      }
+      .horse-num {
+        font-size: 12px;
+        color: #888780;
+        width: 20px;
+        text-align: right;
+        flex-shrink: 0;
+      }
+      .icon-select {
+        font-size: 18px;
+        padding: 3px 6px;
+        border-radius: 8px;
+        border: 0.5px solid #b4b2a9;
+        background: #fff;
+        cursor: pointer;
+        width: 64px;
+      }
+      .name-input {
+        width: 140px;
+      }
+      .flip-hint {
+        font-size: 11px;
+        color: #b4b2a9;
+      }
+
+      .track-container {
+        background: #e8e6e0;
+        border-radius: 12px;
+        border: 0.5px solid #d3d1c7;
+        padding: 1rem;
+        margin-bottom: 1rem;
+      }
+      .track {
+        position: relative;
+        height: 48px;
+        background: #fff;
+        border-radius: 6px;
+        border: 0.5px solid #d3d1c7;
+        margin-bottom: 8px;
+        overflow: hidden;
+      }
+      .track:last-child {
+        margin-bottom: 0;
+      }
+      .finish-line {
+        position: absolute;
+        right: 40px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: repeating-linear-gradient(
+          to bottom,
+          #d85a30 0px,
+          #d85a30 6px,
+          transparent 6px,
+          transparent 12px
+        );
+        opacity: 0.7;
+      }
+      .lane-label {
+        position: absolute;
+        left: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 12px;
+        color: #888780;
+        font-weight: 500;
+        z-index: 2;
+        pointer-events: none;
+        max-width: 70px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .horse {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 24px;
+        user-select: none;
+        z-index: 3;
+        transition: left 0.18s ease-out;
+      }
+      .horse-inner {
+        display: inline-block;
+      }
+      .horse-inner.flipped {
+        transform: scaleX(-1);
+      }
+
+      .horse.configurable {
+        cursor: pointer;
+      }
+      .horse.configurable:hover .horse-inner {
+        filter: drop-shadow(0 0 4px #7f77dd);
+      }
+
+      @keyframes galopar {
+        0% {
+          transform: translateY(0px) rotate(-4deg);
+        }
+        25% {
+          transform: translateY(-4px) rotate(0deg);
+        }
+        50% {
+          transform: translateY(0px) rotate(4deg);
+        }
+        75% {
+          transform: translateY(3px) rotate(0deg);
+        }
+        100% {
+          transform: translateY(0px) rotate(-4deg);
+        }
+      }
+      @keyframes galopar-flipped {
+        0% {
+          transform: scaleX(-1) translateY(0px) rotate(-4deg);
+        }
+        25% {
+          transform: scaleX(-1) translateY(-4px) rotate(0deg);
+        }
+        50% {
+          transform: scaleX(-1) translateY(0px) rotate(4deg);
+        }
+        75% {
+          transform: scaleX(-1) translateY(3px) rotate(0deg);
+        }
+        100% {
+          transform: scaleX(-1) translateY(0px) rotate(-4deg);
+        }
+      }
+      .horse.running .horse-inner {
+        animation: galopar 0.35s ease-in-out infinite;
+      }
+      .horse.running .horse-inner.flipped {
+        animation: galopar-flipped 0.35s ease-in-out infinite;
+      }
+
+      .winner-badge {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 11px;
+        font-weight: 500;
+        background: #faeeda;
+        color: #854f0b;
+        padding: 2px 8px;
+        border-radius: 8px;
+        white-space: nowrap;
+      }
+      .status-bar {
+        min-height: 28px;
+        margin-top: 4px;
+      }
+      .status-msg {
+        font-size: 13px;
+        color: #5f5e5a;
+      }
+
+      .podium {
+        margin-top: 1rem;
+        background: #e8e6e0;
+        border-radius: 12px;
+        border: 0.5px solid #d3d1c7;
+        padding: 0.85rem 1rem;
+        display: none;
+      }
+      .podium h3 {
+        font-size: 13px;
+        font-weight: 500;
+        color: #5f5e5a;
+        margin: 0 0 8px;
+      }
+      .podium-list {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .podium-item {
+        font-size: 13px;
+        color: #1a1a18;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .medal {
+        font-size: 15px;
+      }
+      #speed-label {
+        font-size: 13px;
+        color: #5f5e5a;
+        min-width: 72px;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Simulador de carrera de caballos</h2>
+
+    <div class="controls">
+      <div style="display: flex; align-items: center; gap: 8px">
+        <label for="horse-count">Caballos:</label>
+        <select id="horse-count">
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4" selected>4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="8">8</option>
+        </select>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px">
+        <label for="speed-slider">Velocidad:</label>
+        <input
+          type="range"
+          id="speed-slider"
+          min="1"
+          max="5"
+          step="1"
+          value="3"
+          style="width: 80px"
+        />
+        <span id="speed-label">Normal</span>
+      </div>
+      <div style="flex-grow: 1">
+        <button class="primary" onclick="startRace()">Iniciar</button>
+        <button class="secondary" onclick="resetRace()">Reiniciar</button>
+      </div>
+    </div>
+
+    <div class="config-panel">
+      <h3>Personalizar caballos</h3>
+      <div id="config-panel"></div>
+    </div>
+
+    <div id="tracks" class="track-container"></div>
+
+    <div class="status-bar">
+      <span class="status-msg" id="status-msg"
+        >Configura y presiona Iniciar para arrancar la carrera.</span
+      >
+    </div>
+
+    <div id="podium" class="podium">
+      <h3>Resultados</h3>
+      <div class="podium-list" id="podium-list"></div>
+    </div>
+
+    <script>
+      const ALL_EMOJIS = [
+        "🐴",
+        "🏇",
+        "🦄",
+        "🐎",
+        "🐮",
+        "🦓",
+        "🐂",
+        "🐃",
+        "🐑",
+        "🐖",
+        "🐕",
+        "🐈",
+        "🦊",
+        "🐺",
+        "🦁",
+        "🐯",
+        "🐻",
+        "🐼",
+      ];
+      const DEFAULT_EMOJIS = ["🏇", "🦄", "🐎", "🐴", "🦓", "🐂", "🐃", "🐮"];
+      const DEFAULT_NAMES = [
+        "Relampago",
+        "Tornado",
+        "Veloz",
+        "Furia",
+        "Destello",
+        "Cometa",
+        "Trueno",
+        "Brio",
+      ];
+      const MEDALS = ["🥇", "🥈", "🥉"];
+      const SPEED_LABELS = [
+        "",
+        "Muy lenta",
+        "Lenta",
+        "Normal",
+        "Rápida",
+        "Muy rápida",
+      ];
+
+      let horses = [],
+        raceInterval = null,
+        running = false,
+        finished = [];
+      let flipState = [false, false, false, false, false, false, false, false];
+
+      function getConfig() {
+        return {
+          count: parseInt(document.getElementById("horse-count").value),
+          speed: parseInt(document.getElementById("speed-slider").value),
+        };
+      }
+
+      function toggleFlip(i) {
+        flipState[i] = !flipState[i];
+        const inner = document.getElementById(`inner-${i}`);
+        if (inner) {
+          inner.classList.toggle("flipped", flipState[i]);
+        }
+      }
+
+      function buildConfig() {
+        const { count } = getConfig();
+        const panel = document.getElementById("config-panel");
+        const existing = [];
+        for (let i = 0; i < 8; i++) {
+          const nameEl = document.getElementById(`name-${i}`);
+          const iconEl = document.getElementById(`icon-${i}`);
+          existing.push({
+            name: nameEl ? nameEl.value : DEFAULT_NAMES[i],
+            icon: iconEl ? iconEl.value : DEFAULT_EMOJIS[i],
+          });
+        }
+        panel.innerHTML = "";
+        for (let i = 0; i < count; i++) {
+          const row = document.createElement("div");
+          row.className = "config-row";
+
+          const num = document.createElement("span");
+          num.className = "horse-num";
+          num.textContent = i + 1;
+
+          const iconSel = document.createElement("select");
+          iconSel.className = "icon-select";
+          iconSel.id = `icon-${i}`;
+          ALL_EMOJIS.forEach((e) => {
+            const opt = document.createElement("option");
+            opt.value = e;
+            opt.textContent = e;
+            if (e === existing[i].icon) opt.selected = true;
+            iconSel.appendChild(opt);
+          });
+
+          const nameIn = document.createElement("input");
+          nameIn.type = "text";
+          nameIn.className = "name-input";
+          nameIn.id = `name-${i}`;
+          nameIn.maxLength = 16;
+          nameIn.placeholder = DEFAULT_NAMES[i];
+          nameIn.value = existing[i].name;
+
+          const hint = document.createElement("span");
+          hint.className = "flip-hint";
+          hint.textContent = flipState[i] ? "volteado" : "";
+          hint.id = `flip-hint-${i}`;
+
+          row.appendChild(num);
+          row.appendChild(iconSel);
+          row.appendChild(nameIn);
+          row.appendChild(hint);
+          panel.appendChild(row);
+        }
+      }
+
+      function buildTracks() {
+        const { count } = getConfig();
+        const container = document.getElementById("tracks");
+        container.innerHTML = "";
+        horses = [];
+        finished = [];
+
+        for (let i = 0; i < count; i++) {
+          const name =
+            (document.getElementById(`name-${i}`) || {}).value ||
+            DEFAULT_NAMES[i];
+          const icon =
+            (document.getElementById(`icon-${i}`) || {}).value ||
+            DEFAULT_EMOJIS[i];
+          const flipped = flipState[i];
+
+          const track = document.createElement("div");
+          track.className = "track";
+          track.id = `track-${i}`;
+
+          const fl = document.createElement("div");
+          fl.className = "finish-line";
+
+          const label = document.createElement("div");
+          label.className = "lane-label";
+          label.id = `lane-label-${i}`;
+          label.textContent = name;
+
+          const horseEl = document.createElement("div");
+          horseEl.className = "horse";
+          horseEl.id = `horse-${i}`;
+          horseEl.style.left = "80px";
+
+          horseEl.classList.add("configurable");
+          horseEl.title = "Click para voltear";
+          horseEl.onclick = () => {
+            if (!running) toggleFlip(i);
+          };
+
+          const inner = document.createElement("span");
+          inner.className = "horse-inner" + (flipped ? " flipped" : "");
+          inner.id = `inner-${i}`;
+          inner.textContent = icon;
+
+          horseEl.appendChild(inner);
+          track.appendChild(fl);
+          track.appendChild(label);
+          track.appendChild(horseEl);
+          container.appendChild(track);
+
+          horses.push({ id: i, pos: 0, name, icon, flipped, finished: false });
+        }
+      }
+
+      function getFinishX() {
+        const track = document.getElementById("track-0");
+        return track ? track.clientWidth - 52 : 400;
+      }
+
+      function tick() {
+        const finishX = getFinishX();
+        const { speed } = getConfig();
+        horses.forEach((h) => {
+          if (h.finished) return;
+          h.pos += (Math.random() * 3.5 + 0.5) * speed * 1.4;
+          const el = document.getElementById(`horse-${h.id}`);
+          const px = Math.min(80 + h.pos, finishX);
+          el.style.left = px + "px";
+
+          if (80 + h.pos >= finishX && !h.finished) {
+            h.finished = true;
+            finished.push(h);
+            el.classList.remove("running");
+
+            const track = document.getElementById(`track-${h.id}`);
+            const badge = document.createElement("div");
+            badge.className = "winner-badge";
+            const place = finished.length;
+            badge.textContent =
+              place === 1
+                ? "🥇 1°"
+                : place === 2
+                  ? "🥈 2°"
+                  : place === 3
+                    ? "🥉 3°"
+                    : `${place}°`;
+            track.appendChild(badge);
+
+            if (finished.length === 1) {
+              document.getElementById("status-msg").textContent =
+                `¡${h.name} va primero!`;
+            }
+          }
+        });
+
+        if (finished.length === horses.length) {
+          clearInterval(raceInterval);
+          running = false;
+          showResults();
+        }
+      }
+
+      function showResults() {
+        document.getElementById("status-msg").textContent =
+          `¡Carrera terminada! Ganador: ${finished[0].name} 🎉`;
+        const podium = document.getElementById("podium");
+        const list = document.getElementById("podium-list");
+        list.innerHTML = "";
+        finished.forEach((h, i) => {
+          const item = document.createElement("div");
+          item.className = "podium-item";
+          item.innerHTML = `<span class="medal">${MEDALS[i] || i + 1 + "°"}</span> <span>${h.icon} ${h.name}</span>`;
+          list.appendChild(item);
+        });
+        podium.style.display = "";
+      }
+
+      function startRace() {
+        if (running) return;
+        if (finished.length > 0 && finished.length === horses.length) {
+          resetRace();
+          return;
+        }
+        if (!horses.length) buildTracks();
+        running = true;
+
+        document.getElementById("podium").style.display = "none";
+        document.getElementById("status-msg").textContent =
+          "¡Y arrancan los caballos!";
+
+        horses.forEach((h) => {
+          const el = document.getElementById(`horse-${h.id}`);
+          const lbl = document.getElementById(`lane-label-${h.id}`);
+          const nameVal =
+            (document.getElementById(`name-${h.id}`) || {}).value ||
+            DEFAULT_NAMES[h.id];
+          const iconVal =
+            (document.getElementById(`icon-${h.id}`) || {}).value ||
+            DEFAULT_EMOJIS[h.id];
+          h.name = nameVal;
+          h.icon = iconVal;
+          h.flipped = flipState[h.id];
+          const inner = document.getElementById(`inner-${h.id}`);
+          if (inner) inner.textContent = iconVal;
+          lbl.textContent = nameVal;
+          el.classList.add("running");
+
+          el.classList.remove("configurable");
+        });
+
+        const { speed } = getConfig();
+        raceInterval = setInterval(tick, Math.round(220 / speed));
+      }
+
+      function resetRace() {
+        clearInterval(raceInterval);
+        running = false;
+        document.getElementById("podium").style.display = "none";
+        document.getElementById("status-msg").textContent =
+          "Configura y presiona Iniciar para arrancar la carrera.";
+        buildTracks();
+      }
+
+      document.getElementById("horse-count").addEventListener("change", () => {
+        buildConfig();
+        if (!running) buildTracks();
+      });
+
+      document
+        .getElementById("speed-slider")
+        .addEventListener("input", function () {
+          document.getElementById("speed-label").textContent =
+            SPEED_LABELS[this.value];
+        });
+
+      buildConfig();
+      buildTracks();
+    </script>
+  </body>
+</html>
