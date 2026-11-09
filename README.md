@@ -9,6 +9,7 @@ A lightweight, zero-dependency horse race simulator that runs entirely in the br
 - Flip any horse horizontally by clicking it on the track
 - 5 speed levels
 - Randomized race outcomes — no two races are the same
+- External events (optional): enable heart attacks and pick their probability per race — a random horse bolts from the start and collapses just before the finish line
 - Podium with final standings
 
 ## Demo

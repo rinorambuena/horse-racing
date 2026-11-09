@@ -49,6 +49,27 @@
       </div>
     </details>
 
+    <details class="bulk-input">
+      <summary>Eventos externos</summary>
+      <div class="bulk-row">
+        <label class="event-toggle">
+          <input type="checkbox" id="heart-attack-enabled" />
+          💔 Infartos
+        </label>
+        <input
+          type="range"
+          id="heart-attack-chance"
+          min="0"
+          max="100"
+          step="5"
+          value="33"
+          style="width: 120px"
+          disabled
+        />
+        <span id="heart-attack-label" class="event-label">33%</span>
+      </div>
+    </details>
+
     <div class="config-panel">
       <h3>Personalizar caballos</h3>
       <div id="config-panel"></div>

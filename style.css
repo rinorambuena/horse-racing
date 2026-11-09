@@ -113,6 +113,26 @@ button.primary:hover {
 .bulk-row input[type="text"] {
   width: 280px;
 }
+.event-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #5f5e5a;
+  cursor: pointer;
+  user-select: none;
+}
+.event-toggle input {
+  accent-color: #7f77dd;
+}
+.event-label {
+  font-size: 13px;
+  color: #5f5e5a;
+  min-width: 36px;
+}
+input[type="range"]:disabled + .event-label {
+  opacity: 0.5;
+}
 
 /* ── Config panel ── */
 .flip-btn {
@@ -254,9 +274,11 @@ button.primary:hover {
   transition: left 0.18s ease-out;
 }
 .horse-inner {
+  --flip-x: 1;
   display: inline-block;
 }
 .horse-inner.flipped {
+  --flip-x: -1;
   transform: scaleX(-1);
 }
 .horse.configurable {
@@ -285,6 +307,38 @@ button.primary:hover {
 }
 .horse.running .horse-inner.flipped {
   animation: gallop-flipped 0.35s ease-in-out infinite;
+}
+
+@keyframes heart-attack {
+  0%   { transform: scaleX(var(--flip-x)) translateX(0)    rotate(0deg);  }
+  8%   { transform: scaleX(var(--flip-x)) translateX(-3px) rotate(-8deg); }
+  16%  { transform: scaleX(var(--flip-x)) translateX(3px)  rotate(8deg);  }
+  24%  { transform: scaleX(var(--flip-x)) translateX(-3px) rotate(-8deg); }
+  32%  { transform: scaleX(var(--flip-x)) translateX(3px)  rotate(8deg);  }
+  40%  { transform: scaleX(var(--flip-x)) translateX(-2px) rotate(-5deg); }
+  48%  { transform: scaleX(var(--flip-x)) translateX(2px)  rotate(5deg);  }
+  56%  { transform: scaleX(var(--flip-x)) translateX(0)    rotate(0deg);  }
+  78%  { transform: scaleX(var(--flip-x)) translateY(4px)  rotate(100deg); }
+  88%  { transform: scaleX(var(--flip-x)) translateY(2px)  rotate(84deg);  }
+  100% { transform: scaleX(var(--flip-x)) translateY(4px)  rotate(90deg);  }
+}
+@keyframes heart-pop {
+  0%   { opacity: 0; transform: scale(0.4);  }
+  60%  { opacity: 1; transform: scale(1.35); }
+  100% { opacity: 1; transform: scale(1);    }
+}
+.horse.collapsed .horse-inner {
+  animation: heart-attack 1.4s ease-in-out forwards;
+  filter: grayscale(1);
+}
+.horse.collapsed::after {
+  content: "💔";
+  position: absolute;
+  top: -6px;
+  left: 100%;
+  font-size: 14px;
+  opacity: 0;
+  animation: heart-pop 0.4s ease-out 0.15s forwards;
 }
 
 /* ── Winner badge ── */

@@ -5,6 +5,12 @@ function getConfig() {
   };
 }
 
+function getHeartAttackChance() {
+  const enabled = document.getElementById("heart-attack-enabled").checked;
+  const percent = parseInt(document.getElementById("heart-attack-chance").value);
+  return enabled ? percent / 100 : 0;
+}
+
 function toggleFlip(i) {
   state.flipState[i] = !state.flipState[i];
   const inner = document.getElementById(`inner-${i}`);
@@ -122,7 +128,7 @@ function buildTracks() {
     track.append(finishLine, label, horseEl);
     container.appendChild(track);
 
-    state.horses.push({ id: i, pos: 0, name, icon, finished: false });
+    state.horses.push({ id: i, pos: 0, name, icon, finished: false, collapseAt: null, collapsed: false });
   }
 }
 
@@ -132,14 +138,16 @@ function showResults() {
 
   const list = document.getElementById("podium-list");
   list.innerHTML = "";
-  state.finished.forEach((h, i) => {
+  const collapsed = state.horses.filter((h) => h.collapsed);
+  [...state.finished, ...collapsed].forEach((h, i) => {
     const item = document.createElement("div");
     item.className = "podium-item";
-    item.innerHTML = `<span class="medal">${MEDALS[i] ?? `${i + 1}°`}</span> <span>${h.icon} ${h.name}</span>`;
+    const medal = h.collapsed ? "💀" : MEDALS[i] ?? `${i + 1}°`;
+    item.innerHTML = `<span class="medal">${medal}</span> <span>${h.icon} ${h.name}</span>`;
     list.appendChild(item);
   });
 
-  document.getElementById("podium").style.display = "";
+  document.getElementById("podium").style.display = "block";
 }
 
 function bulkLoadNames(str) {
